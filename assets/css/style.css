@@ -1,0 +1,58 @@
+body {
+    margin: 0;
+    color: #222;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    margin: 20px;
+}
+
+.site-header,
+.site-footer {
+    padding: 12px 20px;
+    background: #eee;
+}
+
+.site-nav a {
+    margin-right: 16px;
+    color: #222;
+}
+
+.site-brand {
+    font-weight: bold;
+}
+
+.products-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.products-table th,
+.products-table td {
+    padding: 8px;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+
+.products-table th {
+    background: #eee;
+}
+
+.product-image {
+    width: 100px;
+    height: 75px;
+    object-fit: cover;
+}
+
+.in-stock {
+    color: green;
+}
+
+.out-of-stock {
+    color: red;
+}
+
+.empty-state {
+    text-align: center;
+}
