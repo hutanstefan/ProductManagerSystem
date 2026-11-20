@@ -29,3 +29,12 @@ function productImage($image)
 
     return 'uploads/' . basename($image);
 }
+
+function pageUrl($page, $page_size)
+{
+    $query_params = $_GET;
+    $query_params['page'] = $page;
+    $query_params['per_page'] = $page_size;
+
+    return '?' . http_build_query($query_params);
+}
