@@ -3,6 +3,9 @@ require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/db.php';
 
 $page_size = intval($_GET['per_page'] ?? DEFAULT_PAGE_SIZE);
+$search_query = isset($_GET['search']) && is_string($_GET['search'])
+    ? trim($_GET['search'])
+    : '';
 
 if (!in_array($page_size, ALLOWED_PAGE_SIZES, true)) {
     $page_size = DEFAULT_PAGE_SIZE;
@@ -10,7 +13,9 @@ if (!in_array($page_size, ALLOWED_PAGE_SIZES, true)) {
 
 $current_page = intval($_GET['page'] ?? 1);
 
-$total_products = $pdo->query('SELECT COUNT(*) FROM products')->fetchColumn();
+$count_statement = $pdo->prepare('SELECT COUNT(*) FROM products WHERE name LIKE :search');
+$count_statement->execute(['search' => "%{$search_query}%"]);
+$total_products = $count_statement->fetchColumn();
 $total_pages = max(1, intval(ceil($total_products / $page_size)));
 
 if ($current_page < 1) {
@@ -24,9 +29,11 @@ $offset = ($current_page - 1) * $page_size;
 $statement = $pdo->prepare(
     'SELECT id, name, description, price, image, availability_date, in_stock
      FROM products
+     WHERE name LIKE :search
      ORDER BY id DESC
      LIMIT :limit OFFSET :offset'
 );
+$statement->bindValue(':search', "%{$search_query}%", PDO::PARAM_STR);
 $statement->bindValue(':limit', $page_size, PDO::PARAM_INT);
 $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
 $statement->execute();
@@ -37,6 +44,13 @@ require __DIR__ . '/includes/header.php';
 <main class="container">
     <h1>Product List</h1>
 
+    <div class="search-container">
+        <form class="search-form" method="get" action="index.php">
+            <input type="hidden" name="per_page" value="<?= $page_size ?>">
+            <input type="text" name="search" placeholder="Search products..." value="<?= e($search_query) ?>">
+            <button type="submit">Search</button>
+        </form>
+    </div>
     <div class="table-wrapper">
         <table class="products-table">
             <thead>
@@ -105,6 +119,7 @@ require __DIR__ . '/includes/header.php';
 
         <form class="page-size-form" method="get" action="index.php">
             <input type="hidden" name="page" value="1">
+            <input type="hidden" name="search" value="<?= e($search_query) ?>">
             <label for="per-page">Products per page</label>
             <select id="per-page" name="per_page">
                 <?php foreach (ALLOWED_PAGE_SIZES as $size): ?>
