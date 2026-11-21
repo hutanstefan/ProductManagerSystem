@@ -89,3 +89,30 @@ body {
 .page-size-form select {
     padding: 6px;
 }
+
+.product-form {
+    display: grid;
+    gap: 8px;
+    max-width: 400px;
+}
+
+.product-form input,
+.product-form textarea,
+.product-form button {
+    padding: 6px;
+}
+
+.product-form textarea {
+    min-height: 80px;
+}
+
+.form-error,
+.field-error {
+    color: #b00020;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
