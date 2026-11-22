@@ -2,5 +2,6 @@
         <p>&copy; <?= date('Y') ?> Product Manager</p>
     </footer>
 </div>
+<script src="assets/js/delete-modal.js" defer></script>
 </body>
 </html>

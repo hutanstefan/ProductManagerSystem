@@ -1,6 +1,10 @@
 <?php
+session_start();
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/db.php';
+
+$delete_error = $_SESSION['delete_error'] ?? '';
+unset($_SESSION['delete_error']);
 
 $page_size = intval($_GET['per_page'] ?? DEFAULT_PAGE_SIZE);
 $search_query = isset($_GET['search']) && is_string($_GET['search'])
@@ -43,6 +47,9 @@ require __DIR__ . '/includes/header.php';
 ?>
 <main class="container">
     <h1>Product List</h1>
+    <?php if ($delete_error !== ''): ?>
+        <p class="form-error" role="alert"><?= e($delete_error) ?></p>
+    <?php endif; ?>
     <p><a href="form.php">Add product</a></p>
 
     <div class="search-container">
@@ -89,12 +96,34 @@ require __DIR__ . '/includes/header.php';
                                     <?= $product['in_stock'] ? 'In stock' : 'Out of stock' ?>
                                 </span>
                             </td>
-                            <td data-label="Actions"><a href="form.php?id=<?= intval($product['id']) ?>">Edit</a></td>
+                            <td data-label="Actions">
+                                <a href="form.php?id=<?= intval($product['id']) ?>">Edit</a>
+                                <button
+                                    class="delete-button"
+                                    type="button"
+                                    data-id="<?= intval($product['id']) ?>"
+                                    data-name="<?= e($product['name']) ?>"
+                                >Delete</button>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>
         </table>
+    </div>
+
+    <div class="delete-modal" id="delete-modal" aria-hidden="true">
+        <div class="delete-modal-box">
+            <p>Are you sure you want to delete <span id="delete-product-name"></span>?</p>
+            <form method="post" action="actions/delete_product.php">
+                <input id="delete-product-id" type="hidden" name="id">
+                <input type="hidden" name="page" value="<?= $current_page ?>">
+                <input type="hidden" name="per_page" value="<?= $page_size ?>">
+                <input type="hidden" name="search" value="<?= e($search_query) ?>">
+                <button class="delete-confirm" type="submit">Delete</button>
+                <button id="cancel-delete" type="button">Cancel</button>
+            </form>
+        </div>
     </div>
 
     <div class="pagination-controls">
