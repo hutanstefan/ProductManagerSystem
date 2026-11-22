@@ -1,10 +1,6 @@
 <?php
-session_start();
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/db.php';
-
-$delete_error = $_SESSION['delete_error'] ?? '';
-unset($_SESSION['delete_error']);
 
 $page_size = intval($_GET['per_page'] ?? DEFAULT_PAGE_SIZE);
 $search_query = isset($_GET['search']) && is_string($_GET['search'])
@@ -47,9 +43,6 @@ require __DIR__ . '/includes/header.php';
 ?>
 <main class="container">
     <h1>Product List</h1>
-    <?php if ($delete_error !== ''): ?>
-        <p class="form-error" role="alert"><?= e($delete_error) ?></p>
-    <?php endif; ?>
     <p><a href="form.php">Add product</a></p>
 
     <div class="search-container">

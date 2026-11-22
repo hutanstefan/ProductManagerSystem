@@ -3,5 +3,6 @@
     </footer>
 </div>
 <script src="assets/js/delete-modal.js" defer></script>
+<script src="assets/js/message.js" defer></script>
 </body>
 </html>

@@ -1,5 +1,24 @@
 <?php
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+function setFlashMessage($type, $text)
+{
+    $_SESSION['flash_message'] = [
+        'type' => $type,
+        'text' => $text,
+    ];
+}
+
+function getFlashMessage()
+{
+    $message = $_SESSION['flash_message'] ?? null;
+    unset($_SESSION['flash_message']);
+    return $message;
+}
+
 function e($value)
 {
     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -21,6 +21,7 @@ $return_url = '../index.php?' . http_build_query([
 
 $id = intval($_POST['id'] ?? 0);
 if ($id <= 0) {
+    setFlashMessage('error', 'Product not found');
     header('Location: ' . $return_url);
     exit;
 }
@@ -36,12 +37,13 @@ try {
     }
 } catch (PDOException $exception) {
     error_log($exception->getMessage());
-    $_SESSION['delete_error'] = 'The product could not be deleted. Please try again.';
+    setFlashMessage('error', 'The product could not be deleted. Please try again');
     header('Location: ' . $return_url);
     exit;
 }
 
 if ($image === false) {
+    setFlashMessage('error', 'Product not found');
     header('Location: ' . $return_url);
     exit;
 }
@@ -50,5 +52,6 @@ if ($image && is_file(__DIR__ . '/../uploads/' . basename($image))) {
     unlink(__DIR__ . '/../uploads/' . basename($image));
 }
 
+setFlashMessage('success', 'Product deleted');
 header('Location: ' . $return_url);
 exit;

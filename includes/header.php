@@ -14,3 +14,13 @@
             <a href="index.php">Products</a>
         </nav>
     </header>
+    <?php
+    $flash_message = getFlashMessage();
+    ?>
+    <?php if ($flash_message): ?>
+        <div class="container">
+            <p class="flash-message <?= e($flash_message['type']) ?>" role="alert">
+                <?= e($flash_message['text']) ?>
+            </p>
+        </div>
+    <?php endif; ?>

@@ -16,8 +16,9 @@ if ($is_edit) {
     $product = $statement->fetch();
 
     if (!$product) {
-        http_response_code(404);
-        exit('Product not found');
+        setFlashMessage('error', 'Product not found');
+        header('Location: index.php');
+        exit;
     }
 }
 
@@ -127,6 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
+            setFlashMessage('success', $is_edit ? 'Product updated' : 'Product created');
             header('Location: index.php');
             exit;
         } catch (PDOException $exception) {

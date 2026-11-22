@@ -117,6 +117,20 @@ body {
     gap: 12px;
 }
 
+.flash-message {
+    margin: 10px 0;
+    padding: 10px;
+    color: #fff;
+}
+
+.flash-message.success {
+    background: green;
+}
+
+.flash-message.error {
+    background: #b00020;
+}
+
 .delete-modal {
     display: none;
     position: fixed;

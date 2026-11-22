@@ -5,8 +5,8 @@ if (deleteModal) {
     var deleteName = document.getElementById('delete-product-name');
     var cancelDelete = document.getElementById('cancel-delete');
 
-    document.querySelectorAll('.delete-button').forEach((button) => {
-        button.addEventListener('click', () => {
+    document.querySelectorAll('.delete-button').forEach(function (button) {
+        button.addEventListener('click', function () {
             deleteId.value = button.dataset.id;
             deleteName.textContent = button.dataset.name;
             deleteModal.classList.add('is-visible');
@@ -21,13 +21,13 @@ if (deleteModal) {
 
     cancelDelete.addEventListener('click', closeDeleteModal);
 
-    deleteModal.addEventListener('click', (event) => {
+    deleteModal.addEventListener('click', function (event) {
         if (event.target === deleteModal) {
             closeDeleteModal();
         }
     });
 
-    document.addEventListener('keydown', (event) => {
+    document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             closeDeleteModal();
         }
