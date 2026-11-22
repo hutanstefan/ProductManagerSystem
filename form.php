@@ -2,12 +2,31 @@
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/db.php';
 
+$is_edit = isset($_GET['id']);
+$product_id = $is_edit ? intval($_GET['id']) : null;
+$product = null;
+
+if ($is_edit) {
+    $statement = $pdo->prepare(
+        'SELECT id, name, description, price, image, availability_date, in_stock
+         FROM products
+         WHERE id = :id'
+    );
+    $statement->execute(['id' => $product_id]);
+    $product = $statement->fetch();
+
+    if (!$product) {
+        http_response_code(404);
+        exit('Product not found');
+    }
+}
+
 $values = [
-    'name' => '',
-    'description' => '',
-    'price' => '',
-    'availability_date' => '',
-    'in_stock' => false,
+    'name' => $product['name'] ?? '',
+    'description' => $product['description'] ?? '',
+    'price' => $product['price'] ?? '',
+    'availability_date' => $product['availability_date'] ?? '',
+    'in_stock' => $product ? (bool) $product['in_stock'] : false,
 ];
 $errors = [];
 $max_image_size = 2 * 1024 * 1024;
@@ -39,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $image_name = null;
+    $image_name = $product['image'] ?? null;
     $image_path = null;
     $upload = $_FILES['image'] ?? null;
     if ($upload !== null && $upload['error'] !== UPLOAD_ERR_NO_FILE) {
@@ -76,18 +95,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         try {
-            $statement = $pdo->prepare(
-                'INSERT INTO products (name, description, price, image, availability_date, in_stock)
-                 VALUES (:name, :description, :price, :image, :availability_date, :in_stock)'
-            );
-            $statement->execute([
+            $parameters = [
                 'name' => $values['name'],
                 'description' => $values['description'] !== '' ? $values['description'] : null,
                 'price' => $values['price'],
                 'image' => $image_name,
                 'availability_date' => $values['availability_date'] !== '' ? $values['availability_date'] : null,
                 'in_stock' => $values['in_stock'] ? 1 : 0,
-            ]);
+            ];
+
+            $old_image_name = $product['image'] ?? null;
+            if ($is_edit) {
+                $parameters['id'] = $product_id;
+                $query = 'UPDATE products
+                          SET name = :name, description = :description, price = :price, image = :image,
+                              availability_date = :availability_date, in_stock = :in_stock
+                          WHERE id = :id';
+            } else {
+                $query =
+                    'INSERT INTO products (name, description, price, image, availability_date, in_stock)
+                     VALUES (:name, :description, :price, :image, :availability_date, :in_stock)';
+            }
+
+            $statement = $pdo->prepare($query);
+            $statement->execute($parameters);
+
+            if ($is_edit && $image_path !== null && $old_image_name) {
+                $old_image_path = __DIR__ . '/uploads/' . $old_image_name;
+                if (is_file($old_image_path)) {
+                    unlink($old_image_path);
+                }
+            }
+
             header('Location: index.php');
             exit;
         } catch (PDOException $exception) {
@@ -103,13 +142,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 require __DIR__ . '/includes/header.php';
 ?>
 <main class="container">
-    <h1>Add product</h1>
+    <h1><?= $is_edit ? 'Edit product' : 'Add product' ?></h1>
 
     <?php if (isset($errors['form'])): ?>
         <p class="form-error" role="alert"><?= e($errors['form']) ?></p>
     <?php endif; ?>
 
-    <form class="product-form" method="post" action="form.php" enctype="multipart/form-data">
+    <form class="product-form" method="post" action="form.php<?= $is_edit ? '?id=' . $product_id : '' ?>" enctype="multipart/form-data">
         <label for="name">Name</label>
         <input id="name" name="name" type="text" value="<?= e($values['name']) ?>" required>
         <?php if (isset($errors['name'])): ?>
@@ -126,6 +165,9 @@ require __DIR__ . '/includes/header.php';
         <?php endif; ?>
 
         <label for="image">Image</label>
+        <?php if ($is_edit && !empty($product['image'])): ?>
+            <img class="product-image" src="<?= e(productImage($product['image'])) ?>" alt="<?= e($product['name']) ?>">
+        <?php endif; ?>
         <input id="image" name="image" type="file" accept="image/*">
         <?php if (isset($errors['image'])): ?>
             <span class="field-error" role="alert"><?= e($errors['image']) ?></span>
@@ -143,7 +185,7 @@ require __DIR__ . '/includes/header.php';
         </label>
 
         <div class="form-actions">
-            <button type="submit">Save product</button>
+            <button type="submit"><?= $is_edit ? 'Update product' : 'Save product' ?></button>
             <a href="index.php">Cancel</a>
         </div>
     </form>

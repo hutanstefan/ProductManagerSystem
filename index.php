@@ -89,7 +89,7 @@ require __DIR__ . '/includes/header.php';
                                     <?= $product['in_stock'] ? 'In stock' : 'Out of stock' ?>
                                 </span>
                             </td>
-                            <td data-label="Actions">-</td>
+                            <td data-label="Actions"><a href="form.php?id=<?= intval($product['id']) ?>">Edit</a></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
