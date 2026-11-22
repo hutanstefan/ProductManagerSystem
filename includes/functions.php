@@ -19,6 +19,22 @@ function getFlashMessage()
     return $message;
 }
 
+function redirect($url)
+{
+    header('Location: ' . $url);
+    exit;
+}
+
+function jsonResponse($success, $message)
+{
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => $success,
+        'message' => $message,
+    ]);
+    exit;
+}
+
 function e($value)
 {
     return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');

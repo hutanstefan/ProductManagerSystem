@@ -7,6 +7,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+$is_ajax = isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+    && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+
 $page = max(1, intval($_POST['page'] ?? 1));
 $page_size = intval($_POST['per_page'] ?? DEFAULT_PAGE_SIZE);
 if (!in_array($page_size, ALLOWED_PAGE_SIZES, true)) {
@@ -21,9 +24,11 @@ $return_url = '../index.php?' . http_build_query([
 
 $id = intval($_POST['id'] ?? 0);
 if ($id <= 0) {
+    if ($is_ajax) {
+        jsonResponse(false, 'Product not found');
+    }
     setFlashMessage('error', 'Product not found');
-    header('Location: ' . $return_url);
-    exit;
+    redirect($return_url);
 }
 
 try {
@@ -37,21 +42,28 @@ try {
     }
 } catch (PDOException $exception) {
     error_log($exception->getMessage());
+    if ($is_ajax) {
+        jsonResponse(false, 'The product could not be deleted. Please try again');
+    }
     setFlashMessage('error', 'The product could not be deleted. Please try again');
-    header('Location: ' . $return_url);
-    exit;
+    redirect($return_url);
 }
 
 if ($image === false) {
+    if ($is_ajax) {
+        jsonResponse(false, 'Product not found');
+    }
     setFlashMessage('error', 'Product not found');
-    header('Location: ' . $return_url);
-    exit;
+    redirect($return_url);
 }
 
 if ($image && is_file(__DIR__ . '/../uploads/' . basename($image))) {
     unlink(__DIR__ . '/../uploads/' . basename($image));
 }
 
+if ($is_ajax) {
+    jsonResponse(true, 'Product deleted');
+}
+
 setFlashMessage('success', 'Product deleted');
-header('Location: ' . $return_url);
-exit;
+redirect($return_url);
