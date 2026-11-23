@@ -43,7 +43,7 @@ require __DIR__ . '/includes/header.php';
 ?>
 <main class="container">
     <h1>Product List</h1>
-    <p><a href="form.php">Add product</a></p>
+    <p><a class="primary-button" href="form.php">Add product</a></p>
 
     <div class="search-container">
         <form class="search-form" method="get" action="index.php">
